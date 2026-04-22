@@ -1,0 +1,1 @@
+To keep our workflow simple, we don’t use pull requests. Instead, please open a GitHub Issue to report bugs, suggest new ideas, or discuss existing topics. This helps us keep all contributions centralized, transparent, and reviewed before implementation.
