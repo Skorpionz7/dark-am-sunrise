@@ -1,4 +1,4 @@
-# Dark AM Sunrise
+# Dark AM Sunrise Client
 A laid‑back ASCII MMORPG in Java, playable on every platform. Linux is verified; macOS may work but hasn’t been tested.
 
 This is an Intellij IDEA project!

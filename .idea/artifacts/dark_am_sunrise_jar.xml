@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="dark-am-sunrise:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/dark_am_sunrise_jar</output-path>
+    <root id="archive" name="dark-am-sunrise.jar">
+      <element id="module-output" name="dark-am-sunrise" />
+    </root>
+  </artifact>
+</component>
