@@ -10,18 +10,18 @@
   src: url("JetBrainsMono-Regular.ttf") format("truetype");
 }
 
-body { text-align: center; background-color: #f3e5f5; font-size: var(--font-size); font-family: "JetBrainsMono", sans-serif;/*font-family: "Arial", Helvetica;*/ }
+body { text-align: center; background-color: #3C3C3C; font-size: var(--font-size); font-family: "JetBrainsMono", sans-serif;/*font-family: "Arial", Helvetica;*/ }
 a { color: #03a003; }
 /* a:hover { background-color: bisque; } */
 .flex, .info { display: flex; align-items: center; justify-content: center; align-self: center; }
-.info { width: var(--width);  margin: 0 auto; text-align: center; }
-.code { background-color: #EDC8FF; padding: 2px;} /*#aBECDa*/
-.box, .box_bg { background: linear-gradient(#bbf7ac, #fff3cd); border: thick double #F3E5C2; display: inline-flex; color: black; padding: 6px; width: var(--width); }
+.info { width: var(--width);  margin: 0 auto; text-align: center; color:#FFFFFF }
+.code { background-color: #EDC8FF; padding: 2px; color:#000000} /*#aBECDa*/
+.box, .box_bg { background: linear-gradient(yellow, #3C3C3C); border: thick double #F3E5C2; display: inline-flex; color: black; padding: 6px; width: var(--width); }
 .info { width: var(--width); display: flex; }
 .box_bg { background: linear-gradient(#f5f5dc, #EDC8FF); }
 .release { color: darkorange; }
 .bigger { font-size: var(--bigger-font-size); }
-.logo_text { font-size: 33px; color: #443E93; padding: 20px; }
+.logo_text { font-size: 55px; color: #ff9100; padding: 20px; }
 .download_button, .download_button_nopadding { text-decoration: none; }
 .download_button { border: thick outset #F3E5C2; padding: var(--download-button-size); }
 .download_button:hover, .download_button_nopadding:hover { background-color: palevioletred; border-color: palevioletred; }
