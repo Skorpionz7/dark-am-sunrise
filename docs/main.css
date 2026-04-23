@@ -15,7 +15,8 @@ a { color: #03a003; }
 /* a:hover { background-color: bisque; } */
 .flex, .info { display: flex; align-items: center; justify-content: center; align-self: center; }
 .info { width: var(--width);  margin: 0 auto; text-align: center; color:#FFFFFF }
-.code { background-color: #EDC8FF; padding: 2px; color:#000000} /*#aBECDa*/
+.code, .code_hover { background-color: #EDC8FF; padding: 2px; color:#000000; text-decoration: none; } /*#aBECDa*/
+.code_hover:hover { background-color: lightgreen; }
 .box, .box_bg { background: linear-gradient(yellow, #3C3C3C); border: thick double #F3E5C2; display: inline-flex; color: black; padding: 6px; width: var(--width); }
 .info { width: var(--width); display: flex; }
 .box_bg { background: linear-gradient(#f5f5dc, #EDC8FF); }
