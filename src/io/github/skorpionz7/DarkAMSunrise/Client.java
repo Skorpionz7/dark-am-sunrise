@@ -1,4 +1,4 @@
-package io.github.skorpionz7.DarkAMSunrise;
+package io.github.skorpionz7.darkamsunrise;
 
 public class Client {
 

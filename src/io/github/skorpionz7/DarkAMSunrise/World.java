@@ -1,4 +1,4 @@
-package io.github.skorpionz7.DarkAMSunrise;
+package io.github.skorpionz7.darkamsunrise;
 
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
