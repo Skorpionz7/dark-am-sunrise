@@ -22,7 +22,7 @@ public class World {
             DefaultTerminalFactory factory = new DefaultTerminalFactory();
             factory.setForceTextTerminal(false);
             factory.setPreferTerminalEmulator(true);
-            factory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(15));
+            factory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(14));
             factory.setInitialTerminalSize(new TerminalSize(140,40));
 
             SwingTerminalFrame terminal = (SwingTerminalFrame) factory.createTerminal();
