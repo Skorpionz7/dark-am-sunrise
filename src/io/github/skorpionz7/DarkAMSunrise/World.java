@@ -6,9 +6,11 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
+
+import java.awt.*;
+import java.io.InputStream;
 
 public class World {
     private final State state;
@@ -22,8 +24,17 @@ public class World {
             DefaultTerminalFactory factory = new DefaultTerminalFactory();
             factory.setForceTextTerminal(false);
             factory.setPreferTerminalEmulator(true);
-            factory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(14));
-            factory.setInitialTerminalSize(new TerminalSize(140,40));
+
+            InputStream is = getClass().getResourceAsStream("/JetBrainsMono-Regular.ttf");
+
+            if (is == null) {
+                throw new Exception("Could not find font in resources!");
+            }
+            Font customFont = Font.createFont(Font.TRUETYPE_FONT, is);
+            customFont = customFont.deriveFont(14f);
+            factory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(customFont));
+
+            factory.setInitialTerminalSize(new TerminalSize(147,36));
 
             SwingTerminalFrame terminal = (SwingTerminalFrame) factory.createTerminal();
             terminal.setTitle("Dark AM Sunrise");
