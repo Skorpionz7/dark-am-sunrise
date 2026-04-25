@@ -28,7 +28,7 @@ public class World {
     private final State state;
     private final Download download;
 
-    private final TextBox commandLine = new TextBox(new TerminalSize(30, 1));
+    private final TextBox commandLine = new TextBox(new TerminalSize(36, 1));
     private final Label chat = new Label("Welcome to Dark AM Sunrise");
 
     World(State state, Download download) {
@@ -70,11 +70,11 @@ public class World {
             commandLine.setInputFilter((interactable, keyStroke) -> {
                 if (keyStroke.getKeyType() == KeyType.Enter) {
                     if (Objects.equals(commandLine.getText(), "")) return false;
-                    String newLine = wrapText("<Skorpion> " + commandLine.getText(), 30);
+                    String newLine = wrapText("<Skorpion> " + commandLine.getText(), 36);
 
                     String[] lines = (chat.getText() + "\n" + newLine).split("\n");
 
-                    int start = Math.max(0, lines.length - 15);
+                    int start = Math.max(0, lines.length - 18);
                     StringBuilder trimmed = new StringBuilder();
 
                     for (int i = start; i < lines.length; i++) {
