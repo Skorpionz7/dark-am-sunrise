@@ -22,6 +22,8 @@ import java.awt.*;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 
 
 public class World {
@@ -41,15 +43,17 @@ public class World {
     private final TextBox passField;
     private final TextBox userField;
 
+    private final AtomicBoolean runningNetwork = new AtomicBoolean(true);
+
     World(State state, Download download) {
         this.state = state;
         this.download = download;
 
         try {
-            String text = wrapText("Navigate the interface with your arrow keys to begin your adventure.", 36);
+            String text = wrapText("Navigate the interface with your arrow keys to begin your adventure.");
             StringBuilder chatText = new StringBuilder(text + "\n" + "Welcome to Dark AM Sunrise!");
-            for (int i =1; i<27; i++) {
-                chatText.insert(0, i+"\n");
+            for (int i = 1; i < 27; i++) {
+                chatText.insert(0, i + "\n");
             }
             chat.setText(chatText.toString());
 
@@ -94,10 +98,10 @@ public class World {
             stack.addComponent(chat);
             stack.addComponent(commandLine);
 
-            commandLine.setInputFilter((interactable, keyStroke) -> {
+            commandLine.setInputFilter((_, keyStroke) -> {
                 if (keyStroke.getKeyType() == KeyType.Enter) {
                     if (Objects.equals(commandLine.getText(), "")) return false;
-                    String newLine = wrapText("<"+download.getUsername()+"> " + commandLine.getText(), 36);
+                    String newLine = wrapText("<" + download.getUsername() + "> " + commandLine.getText());
 
                     String[] lines = (chat.getText() + "\n" + newLine).split("\n");
 
@@ -127,17 +131,7 @@ public class World {
             loginRoot = new Panel();
             loginRoot.setLayoutManager(new LinearLayout(Direction.VERTICAL));
 
-            String asciiTitle = "▓█████▄  ▄▄▄       ██▀███   ██ ▄█▀    ▄▄▄       ███▄ ▄███▓     ██████  █    ██  ███▄    █  ██▀███   ██▓  ██████ ▓█████ \n" +
-                    "▒██▀ ██▌▒████▄    ▓██ ▒ ██▒ ██▄█▒    ▒████▄    ▓██▒▀█▀ ██▒   ▒██    ▒  ██  ▓██▒ ██ ▀█   █ ▓██ ▒ ██▒▓██▒▒██    ▒ ▓█   ▀ \n" +
-                    "░██   █▌▒██  ▀█▄  ▓██ ░▄█ ▒▓███▄░    ▒██  ▀█▄  ▓██    ▓██░   ░ ▓██▄   ▓██  ▒██░▓██  ▀█ ██▒▓██ ░▄█ ▒▒██▒░ ▓██▄   ▒███   \n" +
-                    "░▓█▄   ▌░██▄▄▄▄██ ▒██▀▀█▄  ▓██ █▄    ░██▄▄▄▄██ ▒██    ▒██      ▒   ██▒▓▓█  ░██░▓██▒  ▐▌██▒▒██▀▀█▄  ░██░  ▒   ██▒▒▓█  ▄ \n" +
-                    "░▒████▓  ▓█   ▓██▒░██▓ ▒██▒▒██▒ █▄    ▓█   ▓██▒▒██▒   ░██▒   ▒██████▒▒▒▒█████▓ ▒██░   ▓██░░██▓ ▒██▒░██░▒██████▒▒░▒████▒\n" +
-                    " ▒▒▓  ▒  ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒ ▒▒ ▓▒    ▒▒   ▓▒█░░ ▒░   ░  ░   ▒ ▒▓▒ ▒ ░░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒ ░ ▒▓ ░▒▓░░▓  ▒ ▒▓▒ ▒ ░░░ ▒░ ░\n" +
-                    " ░ ▒  ▒   ▒   ▒▒ ░  ░▒ ░ ▒░░ ░▒ ▒░     ▒   ▒▒ ░░  ░      ░   ░ ░▒  ░ ░░░▒░ ░ ░ ░ ░░   ░ ▒░  ░▒ ░ ▒░ ▒ ░░ ░▒  ░ ░ ░ ░  ░\n" +
-                    " ░ ░  ░   ░   ▒     ░░   ░ ░ ░░ ░      ░   ▒   ░      ░      ░  ░  ░   ░░░ ░ ░    ░   ░ ░   ░░   ░  ▒ ░░  ░  ░     ░   \n" +
-                    "   ░          ░  ░   ░     ░  ░            ░  ░       ░            ░     ░              ░    ░      ░        ░     ░  ░\n" +
-                    " ░                                                                                                                     ";
-            Label title = new Label(asciiTitle);
+            Label title = getLogo();
             title.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
             loginRoot.addComponent(title);
 
@@ -149,7 +143,7 @@ public class World {
             Panel userRow = new Panel();
             userRow.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
             userRow.addComponent(new Label("Name:     "));
-            userField = new TextBox(new TerminalSize(30,1));
+            userField = new TextBox(new TerminalSize(30, 1));
             userRow.addComponent(userField);
             userRow.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
             loginBox.addComponent(userRow);
@@ -157,7 +151,7 @@ public class World {
             Panel passRow = new Panel();
             passRow.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
             passRow.addComponent(new Label("Password: "));
-            passField = new TextBox(new TerminalSize(30,1)).setMask('*');
+            passField = new TextBox(new TerminalSize(30, 1)).setMask('*');
             passRow.addComponent(passField);
             passRow.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
             loginBox.addComponent(passRow);
@@ -179,13 +173,45 @@ public class World {
 
             window.setTitle("Enter the Realm: Where Magic Meets Machine");
 
+            //read blocking thread which sends conditions
+            Thread.startVirtualThread(() -> {
+                while (runningNetwork.get()) {
+                    gui.getGUIThread().invokeLater(() -> window.setTitle(String.valueOf(java.util.concurrent.ThreadLocalRandom.current().nextInt(0, 10000))));
+                    LockSupport.parkNanos(500_000_000L);
+                }
+            });
+
+            //write from pool thread
+            Thread.startVirtualThread(() -> {
+                while (runningNetwork.get()) {
+                    gui.getGUIThread().invokeLater(() -> window.setTitle(String.valueOf(java.util.concurrent.ThreadLocalRandom.current().nextInt(0, 10000))));
+                    LockSupport.parkNanos(500_000_000L);
+                }
+            });
+
             gui.addWindowAndWait(window);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String wrapText(String text, int width) {
+    private static Label getLogo() {
+        String asciiTitle = """
+                ▓█████▄  ▄▄▄       ██▀███   ██ ▄█▀    ▄▄▄       ███▄ ▄███▓     ██████  █    ██  ███▄    █  ██▀███   ██▓  ██████ ▓█████\s
+                ▒██▀ ██▌▒████▄    ▓██ ▒ ██▒ ██▄█▒    ▒████▄    ▓██▒▀█▀ ██▒   ▒██    ▒  ██  ▓██▒ ██ ▀█   █ ▓██ ▒ ██▒▓██▒▒██    ▒ ▓█   ▀\s
+                ░██   █▌▒██  ▀█▄  ▓██ ░▄█ ▒▓███▄░    ▒██  ▀█▄  ▓██    ▓██░   ░ ▓██▄   ▓██  ▒██░▓██  ▀█ ██▒▓██ ░▄█ ▒▒██▒░ ▓██▄   ▒███  \s
+                ░▓█▄   ▌░██▄▄▄▄██ ▒██▀▀█▄  ▓██ █▄    ░██▄▄▄▄██ ▒██    ▒██      ▒   ██▒▓▓█  ░██░▓██▒  ▐▌██▒▒██▀▀█▄  ░██░  ▒   ██▒▒▓█  ▄\s
+                ░▒████▓  ▓█   ▓██▒░██▓ ▒██▒▒██▒ █▄    ▓█   ▓██▒▒██▒   ░██▒   ▒██████▒▒▒▒█████▓ ▒██░   ▓██░░██▓ ▒██▒░██░▒██████▒▒░▒████▒
+                 ▒▒▓  ▒  ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒ ▒▒ ▓▒    ▒▒   ▓▒█░░ ▒░   ░  ░   ▒ ▒▓▒ ▒ ░░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒ ░ ▒▓ ░▒▓░░▓  ▒ ▒▓▒ ▒ ░░░ ▒░ ░
+                 ░ ▒  ▒   ▒   ▒▒ ░  ░▒ ░ ▒░░ ░▒ ▒░     ▒   ▒▒ ░░  ░      ░   ░ ░▒  ░ ░░░▒░ ░ ░ ░ ░░   ░ ▒░  ░▒ ░ ▒░ ▒ ░░ ░▒  ░ ░ ░ ░  ░
+                 ░ ░  ░   ░   ▒     ░░   ░ ░ ░░ ░      ░   ▒   ░      ░      ░  ░  ░   ░░░ ░ ░    ░   ░ ░   ░░   ░  ▒ ░░  ░  ░     ░  \s
+                   ░          ░  ░   ░     ░  ░            ░  ░       ░            ░     ░              ░    ░      ░        ░     ░  ░
+                 ░                                                                                                                    \s""";
+        return new Label(asciiTitle);
+    }
+
+    private String wrapText(String text) {
+        int width = 36;
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < text.length(); i++) {
@@ -206,6 +232,7 @@ public class World {
     }
 
     private void quit() {
+        runningNetwork.compareAndSet(true, false);
         window.close();
         System.exit(0);
     }
