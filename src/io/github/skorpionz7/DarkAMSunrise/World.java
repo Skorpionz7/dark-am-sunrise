@@ -1,15 +1,13 @@
 package io.github.skorpionz7.darkamsunrise;
 
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.bundle.LanternaThemes;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.BorderLayout;
 import com.googlecode.lanterna.gui2.Button;
 import com.googlecode.lanterna.gui2.GridLayout;
 import com.googlecode.lanterna.gui2.Label;
 import com.googlecode.lanterna.gui2.Window;
-import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
@@ -21,7 +19,6 @@ import com.googlecode.lanterna.gui2.Panel;
 
 import java.awt.*;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,6 +29,12 @@ public class World {
 
     private final TextBox commandLine = new TextBox(new TerminalSize(36, 1));
     private final Label chat = new Label("");
+    private final Button inventoryButton;
+    private final Button tradeButton;
+
+    private final BasicWindow window = new BasicWindow("Dark AM Sunrise");
+    private final Panel gameRoot;
+    private final Panel loginRoot;
 
     World(State state, Download download) {
         this.state = state;
@@ -39,8 +42,8 @@ public class World {
 
         try {
             String text = wrapText("Navigate the interface with your arrow keys to begin your adventure.", 36);
-            StringBuilder chatText = new StringBuilder(text + "\n" + "Welcome to Dark AM Sunrise");
-            for (int i =1; i<16; i++) {
+            StringBuilder chatText = new StringBuilder(text + "\n" + "Welcome to Dark AM Sunrise!");
+            for (int i =1; i<27; i++) {
                 chatText.insert(0, i+"\n");
             }
             chat.setText(chatText.toString());
@@ -67,25 +70,33 @@ public class World {
             screen.startScreen();
 
             MultiWindowTextGUI gui = new MultiWindowTextGUI(screen);
-            BasicWindow window = new BasicWindow("Dark AM Sunrise");
             window.setHints(List.of(Window.Hint.EXPANDED));
 
-            Panel root = new Panel(new BorderLayout());
+            window.setTheme(LanternaThemes.getRegisteredTheme("defrost"));
+
+            gameRoot = new Panel(new BorderLayout());
+
+            Panel invTrade = new Panel();
+            invTrade.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+            inventoryButton = new Button("Inventory");
+            tradeButton = new Button("Trade");
+            invTrade.addComponent(inventoryButton);
+            invTrade.addComponent(tradeButton);
 
             Panel stack = new Panel(new GridLayout(1));
-            Button inventoryButton = new Button("Inventory");
-            stack.addComponent(inventoryButton);
+
+            stack.addComponent(invTrade);
             stack.addComponent(chat);
             stack.addComponent(commandLine);
 
             commandLine.setInputFilter((interactable, keyStroke) -> {
                 if (keyStroke.getKeyType() == KeyType.Enter) {
                     if (Objects.equals(commandLine.getText(), "")) return false;
-                    String newLine = wrapText("<Skorpion> " + commandLine.getText(), 36);
+                    String newLine = wrapText("<"+download.getUsername()+"> " + commandLine.getText(), 36);
 
                     String[] lines = (chat.getText() + "\n" + newLine).split("\n");
 
-                    int start = Math.max(0, lines.length - 18);
+                    int start = Math.max(0, lines.length - 29);
                     StringBuilder trimmed = new StringBuilder();
 
                     for (int i = start; i < lines.length; i++) {
@@ -95,6 +106,7 @@ public class World {
                     chat.setText(trimmed.toString().trim());
                     commandLine.setText("");
                     inventoryButton.takeFocus();
+                    //gui.setActiveWindow(loginWindow);
                     return false;
                 }
                 return true;
@@ -103,8 +115,63 @@ public class World {
             Panel bottom = new Panel(new BorderLayout());
             bottom.addComponent(stack, BorderLayout.Location.LEFT);
 
-            root.addComponent(bottom, BorderLayout.Location.BOTTOM);
-            window.setComponent(root);
+            gameRoot.addComponent(bottom, BorderLayout.Location.BOTTOM);
+            window.setComponent(gameRoot);
+
+            gui.addWindow(window);
+
+            loginRoot = new Panel();
+            loginRoot.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+
+            String asciiTitle = "▓█████▄  ▄▄▄       ██▀███   ██ ▄█▀    ▄▄▄       ███▄ ▄███▓     ██████  █    ██  ███▄    █  ██▀███   ██▓  ██████ ▓█████ \n" +
+                    "▒██▀ ██▌▒████▄    ▓██ ▒ ██▒ ██▄█▒    ▒████▄    ▓██▒▀█▀ ██▒   ▒██    ▒  ██  ▓██▒ ██ ▀█   █ ▓██ ▒ ██▒▓██▒▒██    ▒ ▓█   ▀ \n" +
+                    "░██   █▌▒██  ▀█▄  ▓██ ░▄█ ▒▓███▄░    ▒██  ▀█▄  ▓██    ▓██░   ░ ▓██▄   ▓██  ▒██░▓██  ▀█ ██▒▓██ ░▄█ ▒▒██▒░ ▓██▄   ▒███   \n" +
+                    "░▓█▄   ▌░██▄▄▄▄██ ▒██▀▀█▄  ▓██ █▄    ░██▄▄▄▄██ ▒██    ▒██      ▒   ██▒▓▓█  ░██░▓██▒  ▐▌██▒▒██▀▀█▄  ░██░  ▒   ██▒▒▓█  ▄ \n" +
+                    "░▒████▓  ▓█   ▓██▒░██▓ ▒██▒▒██▒ █▄    ▓█   ▓██▒▒██▒   ░██▒   ▒██████▒▒▒▒█████▓ ▒██░   ▓██░░██▓ ▒██▒░██░▒██████▒▒░▒████▒\n" +
+                    " ▒▒▓  ▒  ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒ ▒▒ ▓▒    ▒▒   ▓▒█░░ ▒░   ░  ░   ▒ ▒▓▒ ▒ ░░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒ ░ ▒▓ ░▒▓░░▓  ▒ ▒▓▒ ▒ ░░░ ▒░ ░\n" +
+                    " ░ ▒  ▒   ▒   ▒▒ ░  ░▒ ░ ▒░░ ░▒ ▒░     ▒   ▒▒ ░░  ░      ░   ░ ░▒  ░ ░░░▒░ ░ ░ ░ ░░   ░ ▒░  ░▒ ░ ▒░ ▒ ░░ ░▒  ░ ░ ░ ░  ░\n" +
+                    " ░ ░  ░   ░   ▒     ░░   ░ ░ ░░ ░      ░   ▒   ░      ░      ░  ░  ░   ░░░ ░ ░    ░   ░ ░   ░░   ░  ▒ ░░  ░  ░     ░   \n" +
+                    "   ░          ░  ░   ░     ░  ░            ░  ░       ░            ░     ░              ░    ░      ░        ░     ░  ░\n" +
+                    " ░                                                                                                                     ";
+            Label title = new Label(asciiTitle);
+            title.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+            loginRoot.addComponent(title);
+
+            loginRoot.addComponent(new EmptySpace(new TerminalSize(1, 1)));
+
+            Panel loginBox = new Panel();
+            loginBox.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+
+            Panel userRow = new Panel();
+            userRow.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+            userRow.addComponent(new Label("Name:     "));
+            TextBox userField = new TextBox(new TerminalSize(30,1));
+            userRow.addComponent(userField);
+            userRow.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+            loginBox.addComponent(userRow);
+
+            Panel passRow = new Panel();
+            passRow.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+            passRow.addComponent(new Label("Password: "));
+            TextBox passField = new TextBox(new TerminalSize(30,1)).setMask('*');
+            passRow.addComponent(passField);
+            passRow.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+            loginBox.addComponent(passRow);
+
+            loginBox.addComponent(new EmptySpace(new TerminalSize(1, 1)));
+
+            Panel buttons = new Panel();
+            buttons.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+            buttons.addComponent(new Button("Login", () -> {login();}));
+            buttons.addComponent(new EmptySpace(TerminalSize.ONE));
+            buttons.addComponent(new Button("Quit",() -> {quit();}));
+            buttons.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+            loginBox.addComponent(buttons);
+
+            loginBox.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+            loginRoot.addComponent(loginBox);
+
+            window.setComponent(loginRoot);
 
             gui.addWindowAndWait(window);
         } catch (Exception e) {
@@ -124,5 +191,14 @@ public class World {
         }
 
         return result.toString();
+    }
+
+    private void login() {
+        window.setComponent(gameRoot);
+    }
+
+    private void quit() {
+        window.close();
+        System.exit(0);
     }
 }
