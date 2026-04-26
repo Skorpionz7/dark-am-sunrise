@@ -36,6 +36,9 @@ public class World {
     private final Panel gameRoot;
     private final Panel loginRoot;
 
+    private final TextBox passField;
+    private final TextBox userField;
+
     World(State state, Download download) {
         this.state = state;
         this.download = download;
@@ -106,7 +109,6 @@ public class World {
                     chat.setText(trimmed.toString().trim());
                     commandLine.setText("");
                     inventoryButton.takeFocus();
-                    //gui.setActiveWindow(loginWindow);
                     return false;
                 }
                 return true;
@@ -145,7 +147,7 @@ public class World {
             Panel userRow = new Panel();
             userRow.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
             userRow.addComponent(new Label("Name:     "));
-            TextBox userField = new TextBox(new TerminalSize(30,1));
+            userField = new TextBox(new TerminalSize(30,1));
             userRow.addComponent(userField);
             userRow.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
             loginBox.addComponent(userRow);
@@ -153,7 +155,7 @@ public class World {
             Panel passRow = new Panel();
             passRow.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
             passRow.addComponent(new Label("Password: "));
-            TextBox passField = new TextBox(new TerminalSize(30,1)).setMask('*');
+            passField = new TextBox(new TerminalSize(30,1)).setMask('*');
             passRow.addComponent(passField);
             passRow.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
             loginBox.addComponent(passRow);
@@ -172,6 +174,8 @@ public class World {
             loginRoot.addComponent(loginBox);
 
             window.setComponent(loginRoot);
+
+            window.setTitle("Enter the Realm: Where Magic Meets Machine");
 
             gui.addWindowAndWait(window);
         } catch (Exception e) {
@@ -194,6 +198,8 @@ public class World {
     }
 
     private void login() {
+        window.setTitle("Gateway Window to the Living Realm");
+        download.setUsername(userField.getText());
         window.setComponent(gameRoot);
     }
 
