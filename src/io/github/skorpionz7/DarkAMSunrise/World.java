@@ -8,6 +8,7 @@ import com.googlecode.lanterna.gui2.Button;
 import com.googlecode.lanterna.gui2.GridLayout;
 import com.googlecode.lanterna.gui2.Label;
 import com.googlecode.lanterna.gui2.Window;
+import com.googlecode.lanterna.gui2.dialogs.TextInputDialog;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
@@ -35,6 +36,7 @@ public class World {
     private final BasicWindow window = new BasicWindow("Dark AM Sunrise");
     private final Panel gameRoot;
     private final Panel loginRoot;
+    private final MultiWindowTextGUI gui;
 
     private final TextBox passField;
     private final TextBox userField;
@@ -72,7 +74,7 @@ public class World {
             Screen screen = new TerminalScreen(terminal);
             screen.startScreen();
 
-            MultiWindowTextGUI gui = new MultiWindowTextGUI(screen);
+            gui = new MultiWindowTextGUI(screen);
             window.setHints(List.of(Window.Hint.EXPANDED));
 
             window.setTheme(LanternaThemes.getRegisteredTheme("defrost"));
@@ -81,8 +83,8 @@ public class World {
 
             Panel invTrade = new Panel();
             invTrade.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
-            inventoryButton = new Button("Inventory");
-            tradeButton = new Button("Trade");
+            inventoryButton = new Button("Inventory", this::openInventory);
+            tradeButton = new Button("Trade", this::openTrade);
             invTrade.addComponent(inventoryButton);
             invTrade.addComponent(tradeButton);
 
@@ -164,9 +166,9 @@ public class World {
 
             Panel buttons = new Panel();
             buttons.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
-            buttons.addComponent(new Button("Login", () -> {login();}));
+            buttons.addComponent(new Button("Login", this::login));
             buttons.addComponent(new EmptySpace(TerminalSize.ONE));
-            buttons.addComponent(new Button("Quit",() -> {quit();}));
+            buttons.addComponent(new Button("Quit", this::quit));
             buttons.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
             loginBox.addComponent(buttons);
 
@@ -206,5 +208,20 @@ public class World {
     private void quit() {
         window.close();
         System.exit(0);
+    }
+
+    private void openInventory() {
+
+    }
+
+    private void openTrade() {
+        String result = TextInputDialog.showDialog(
+                gui,                 // WindowBasedTextGUI
+                "Enter a name to trade with",        // Title
+                "Username:",        // Description
+                ""                   // Initial value
+        );
+        if (result == null) return;
+        window.setTitle("Chose this user "+result);
     }
 }
