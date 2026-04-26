@@ -81,7 +81,7 @@ public class World {
             gui = new MultiWindowTextGUI(screen);
             window.setHints(List.of(Window.Hint.EXPANDED));
 
-            window.setTheme(LanternaThemes.getRegisteredTheme("defrost"));
+            window.setTheme(LanternaThemes.getRegisteredTheme("businessmachine"));
 
             gameRoot = new Panel(new BorderLayout());
 
@@ -181,7 +181,7 @@ public class World {
                 }
             });
 
-            //write from pool thread
+            //write from pool thread BlockingQueue.take()
             Thread.startVirtualThread(() -> {
                 while (runningNetwork.get()) {
                     gui.getGUIThread().invokeLater(() -> window.setTitle(String.valueOf(java.util.concurrent.ThreadLocalRandom.current().nextInt(0, 10000))));
@@ -226,6 +226,7 @@ public class World {
     }
 
     private void login() {
+        window.setTheme(LanternaThemes.getRegisteredTheme("defrost"));
         window.setTitle("Gateway Window to the Living Realm");
         download.setUsername(userField.getText());
         window.setComponent(gameRoot);
@@ -248,7 +249,7 @@ public class World {
                 "Username:",        // Description
                 ""                   // Initial value
         );
-        if (result == null) return;
+        if ((result == null) || (result.isEmpty())) return;
         window.setTitle("Chose this user "+result);
     }
 }
