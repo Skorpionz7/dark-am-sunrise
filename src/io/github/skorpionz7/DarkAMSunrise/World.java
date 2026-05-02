@@ -211,7 +211,7 @@ public class World {
     }
 
     private String wrapText(String text) {
-        int width = 36;
+        int width = state.getWrap();
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < text.length(); i++) {
